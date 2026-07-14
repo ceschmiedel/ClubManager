@@ -1,0 +1,395 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  ATLETA
+}
+
+enum Posicao {
+  GOLEIRO
+  ZAGUEIRO
+  LATERAL
+  VOLANTE
+  MEIA
+  ATACANTE
+  FIXO
+  ALA
+  PIVO
+}
+
+enum Modalidade {
+  CAMPO
+  FUTSAL
+}
+
+enum StatusJogo {
+  AGENDADO
+  ENCERRADO
+  CANCELADO
+}
+
+enum StatusConfirmacao {
+  CONFIRMADO
+  LISTA_ESPERA
+  RECUSADO
+}
+
+enum TipoKit {
+  TITULAR
+  RESERVA
+  GOLEIRO
+  TREINO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  AGUARDANDO_CONFIRMACAO
+  PAGO
+  ISENTO
+}
+
+enum TipoLancamento {
+  RECEITA
+  DESPESA
+}
+
+model Clube {
+  id           String   @id @default(cuid())
+  nome         String
+  apelido      String?
+  fundacao     DateTime?
+  escudoUrl    String?
+  corPrimaria  String   @default("#16a34a")
+  corSecundaria String  @default("#0f172a")
+  cidade       String?
+  estado       String?
+  // Conta PIX do clube
+  pixChave     String?
+  pixTipoChave String?  // cpf, cnpj, email, telefone, aleatoria
+  pixTitular   String?
+  pixBanco     String?
+  mensalidadeValor Decimal @default(50) @db.Decimal(10, 2)
+  mensalidadeVencimentoDia Int @default(10)
+  regulamento  String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+model Usuario {
+  id           String   @id @default(cuid())
+  nome         String
+  email        String   @unique
+  senhaHash    String
+  role         Role     @default(ATLETA)
+  telefone     String?
+  avatarUrl    String?
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  atleta       Atleta?
+  avisos       Aviso[]
+  comentarios  ComentarioJogo[]
+}
+
+model Atleta {
+  id              String    @id @default(cuid())
+  usuarioId       String    @unique
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  apelido         String?
+  nascimento      DateTime?
+  posicao         Posicao   @default(MEIA)
+  posicaoFutsal   Posicao?
+  numeroCamisa    Int?
+  peDominante     String?   // destro, canhoto, ambidestro
+  alturaCm        Int?
+  pesoKg          Int?
+  // Saúde / emergência
+  tipoSanguineo   String?
+  convenio        String?
+  contatoEmergenciaNome String?
+  contatoEmergenciaFone String?
+  observacoesSaude String?
+  socioDesde      DateTime  @default(now())
+  isento          Boolean   @default(false)
+
+  confirmacoes    Confirmacao[]
+  participacoes   Participacao[]
+  notasRecebidas  NotaJogador[] @relation("NotasRecebidas")
+  notasDadas      NotaJogador[] @relation("NotasDadas")
+  votosCraqueRecebidos VotoCraque[] @relation("VotosRecebidos")
+  votosCraqueDados     VotoCraque[] @relation("VotosDados")
+  pagamentos      Pagamento[]
+  lesoes          Lesao[]
+  posicoesTaticas PosicaoTatica[]
+  emprestimos     EmprestimoPatrimonio[]
+  badges          BadgeAtleta[]
+}
+
+model Adversario {
+  id        String  @id @default(cuid())
+  nome      String
+  corCamisa String?
+  cidade    String?
+  contato   String?
+  jogos     Jogo[]
+}
+
+model Local {
+  id        String  @id @default(cuid())
+  nome      String
+  endereco  String?
+  modalidade Modalidade @default(CAMPO)
+  valorAluguel Decimal? @db.Decimal(10, 2)
+  jogos     Jogo[]
+}
+
+model Competicao {
+  id        String   @id @default(cuid())
+  nome      String
+  temporada String?
+  descricao String?
+  jogos     Jogo[]
+}
+
+model Kit {
+  id            String  @id @default(cuid())
+  nome          String
+  tipo          TipoKit @default(TITULAR)
+  corPrimaria   String
+  corSecundaria String?
+  corCalcao     String?
+  corMeiao      String?
+  fornecedor    String?
+  ano           Int?
+  ativo         Boolean @default(true)
+  observacoes   String?
+  jogos         Jogo[]
+  pecas         PecaKit[]
+}
+
+model PecaKit {
+  id       String @id @default(cuid())
+  kitId    String
+  kit      Kit    @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  tamanho  String // P, M, G, GG, XG
+  quantidade Int  @default(0)
+}
+
+model Jogo {
+  id            String     @id @default(cuid())
+  dataHora      DateTime
+  modalidade    Modalidade @default(CAMPO)
+  status        StatusJogo @default(AGENDADO)
+  adversarioId  String?
+  adversario    Adversario? @relation(fields: [adversarioId], references: [id])
+  localId       String?
+  local         Local?     @relation(fields: [localId], references: [id])
+  competicaoId  String?
+  competicao    Competicao? @relation(fields: [competicaoId], references: [id])
+  kitId         String
+  kit           Kit        @relation(fields: [kitId], references: [id])
+  maxJogadores  Int        @default(22)
+  emCasa        Boolean    @default(true)
+  observacoes   String?
+  // Resultado
+  golsPro       Int?
+  golsContra    Int?
+  encerradoEm   DateTime?
+
+  confirmacoes  Confirmacao[]
+  participacoes Participacao[]
+  notas         NotaJogador[]
+  votosCraque   VotoCraque[]
+  comentarios   ComentarioJogo[]
+  formacao      Formacao?
+  fotos         Foto[]
+  criadoEm      DateTime   @default(now())
+}
+
+model Confirmacao {
+  id        String            @id @default(cuid())
+  jogoId    String
+  jogo      Jogo              @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  atletaId  String
+  atleta    Atleta            @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  status    StatusConfirmacao
+  criadoEm  DateTime          @default(now())
+
+  @@unique([jogoId, atletaId])
+}
+
+// Estatísticas individuais em um jogo encerrado
+model Participacao {
+  id          String  @id @default(cuid())
+  jogoId      String
+  jogo        Jogo    @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  atletaId    String
+  atleta      Atleta  @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  presente    Boolean @default(true)
+  gols        Int     @default(0)
+  assistencias Int    @default(0)
+  cartaoAmarelo Int   @default(0)
+  cartaoVermelho Int  @default(0)
+  golsSofridos Int?   // para goleiros
+  minutos     Int?
+
+  @@unique([jogoId, atletaId])
+}
+
+model NotaJogador {
+  id          String @id @default(cuid())
+  jogoId      String
+  jogo        Jogo   @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  avaliadoId  String
+  avaliado    Atleta @relation("NotasRecebidas", fields: [avaliadoId], references: [id], onDelete: Cascade)
+  avaliadorId String
+  avaliador   Atleta @relation("NotasDadas", fields: [avaliadorId], references: [id], onDelete: Cascade)
+  nota        Decimal @db.Decimal(3, 1) // 0.0 a 10.0
+
+  @@unique([jogoId, avaliadoId, avaliadorId])
+}
+
+model VotoCraque {
+  id         String @id @default(cuid())
+  jogoId     String
+  jogo       Jogo   @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  votadoId   String
+  votado     Atleta @relation("VotosRecebidos", fields: [votadoId], references: [id], onDelete: Cascade)
+  votanteId  String
+  votante    Atleta @relation("VotosDados", fields: [votanteId], references: [id], onDelete: Cascade)
+
+  @@unique([jogoId, votanteId])
+}
+
+model ComentarioJogo {
+  id        String   @id @default(cuid())
+  jogoId    String
+  jogo      Jogo     @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  autorId   String
+  autor     Usuario  @relation(fields: [autorId], references: [id], onDelete: Cascade)
+  texto     String
+  criadoEm  DateTime @default(now())
+}
+
+model Aviso {
+  id        String   @id @default(cuid())
+  titulo    String
+  texto     String
+  autorId   String
+  autor     Usuario  @relation(fields: [autorId], references: [id], onDelete: Cascade)
+  fixado    Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+}
+
+// Mesa tática
+model Formacao {
+  id        String   @id @default(cuid())
+  jogoId    String   @unique
+  jogo      Jogo     @relation(fields: [jogoId], references: [id], onDelete: Cascade)
+  esquema   String?  // ex: 4-4-2, 1-2-1
+  anotacoes String?
+  posicoes  PosicaoTatica[]
+  atualizadoEm DateTime @updatedAt
+}
+
+model PosicaoTatica {
+  id         String   @id @default(cuid())
+  formacaoId String
+  formacao   Formacao @relation(fields: [formacaoId], references: [id], onDelete: Cascade)
+  atletaId   String
+  atleta     Atleta   @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  x          Float    // percentual 0-100
+  y          Float    // percentual 0-100
+  titular    Boolean  @default(true)
+
+  @@unique([formacaoId, atletaId])
+}
+
+// Financeiro
+model Pagamento {
+  id          String          @id @default(cuid())
+  atletaId    String
+  atleta      Atleta          @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  competencia String          // "2026-07"
+  valor       Decimal         @db.Decimal(10, 2)
+  status      StatusPagamento @default(PENDENTE)
+  pagoEm      DateTime?
+  confirmadoPor String?
+  comprovanteInfo String?
+  criadoEm    DateTime        @default(now())
+
+  @@unique([atletaId, competencia])
+}
+
+model Lancamento {
+  id        String         @id @default(cuid())
+  tipo      TipoLancamento
+  categoria String         // aluguel, arbitragem, material, mensalidade, churrasco, outros
+  descricao String
+  valor     Decimal        @db.Decimal(10, 2)
+  data      DateTime       @default(now())
+  criadoEm  DateTime       @default(now())
+}
+
+// Saúde
+model Lesao {
+  id          String    @id @default(cuid())
+  atletaId    String
+  atleta      Atleta    @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  descricao   String
+  dataInicio  DateTime  @default(now())
+  dataRetorno DateTime?
+  ativa       Boolean   @default(true)
+}
+
+// Patrimônio
+model Patrimonio {
+  id          String  @id @default(cuid())
+  nome        String
+  categoria   String  // bola, colete, rede, medicina, outros
+  quantidade  Int     @default(1)
+  observacoes String?
+  emprestimos EmprestimoPatrimonio[]
+}
+
+model EmprestimoPatrimonio {
+  id           String     @id @default(cuid())
+  patrimonioId String
+  patrimonio   Patrimonio @relation(fields: [patrimonioId], references: [id], onDelete: Cascade)
+  atletaId     String
+  atleta       Atleta     @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  quantidade   Int        @default(1)
+  retiradoEm   DateTime   @default(now())
+  devolvidoEm  DateTime?
+}
+
+// Gamificação
+model BadgeAtleta {
+  id        String   @id @default(cuid())
+  atletaId  String
+  atleta    Atleta   @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  codigo    String   // ex: JOGOS_10, JOGOS_50, ARTILHEIRO_MES, PAREDAO
+  rotulo    String
+  ganhoEm   DateTime @default(now())
+
+  @@unique([atletaId, codigo])
+}
+
+// Galeria
+model Foto {
+  id        String   @id @default(cuid())
+  jogoId    String?
+  jogo      Jogo?    @relation(fields: [jogoId], references: [id], onDelete: SetNull)
+  url       String
+  legenda   String?
+  criadoEm  DateTime @default(now())
+}
