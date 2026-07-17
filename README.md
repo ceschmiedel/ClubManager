@@ -53,7 +53,7 @@ cp .env.example .env   # ajuste DATABASE_URL e AUTH_SECRET
 
 # 3. Dependências e schema
 npm install
-npx prisma db push
+npx prisma migrate deploy
 
 # 4. Dados de demonstração (opcional, recomendado)
 npx tsx prisma/seed.ts
@@ -68,6 +68,18 @@ npm run dev
 |---|---|---|
 | Super Admin | `admin@amigosdabola.com` | `123456` |
 | Atleta | `fabinho@amigos.com` (e outros `@amigos.com`) | `123456` |
+
+## Deploy (Vercel + Neon)
+
+1. Crie um banco Postgres no [Neon](https://neon.tech) e copie a connection string.
+2. Na [Vercel](https://vercel.com), importe este repositório do GitHub.
+3. Configure as variáveis de ambiente do projeto:
+   - `DATABASE_URL` — a connection string do Neon (com `?sslmode=require`)
+   - `AUTH_SECRET` — um segredo forte (ex: `openssl rand -base64 32`)
+4. Deploy. O script de build já roda `prisma migrate deploy` (aplica as migrations
+   no banco) e `prisma generate` automaticamente antes do `next build`.
+5. (Opcional) Popule os dados de demonstração apontando para o banco de produção:
+   `DATABASE_URL="<url do neon>" npx tsx prisma/seed.ts`
 
 ## Estrutura
 
