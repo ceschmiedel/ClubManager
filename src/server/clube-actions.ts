@@ -40,3 +40,22 @@ export async function salvarClube(formData: FormData) {
   });
   revalidatePath("/", "layout");
 }
+
+// Gera (ou renova) o código de convite para auto-cadastro de atletas
+export async function gerarCodigoConvite() {
+  await exigirAdmin();
+  const clube = await obterClube();
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let codigo = "BOLA-";
+  for (let i = 0; i < 5; i++)
+    codigo += alfabeto[Math.floor(Math.random() * alfabeto.length)];
+  await prisma.clube.update({ where: { id: clube.id }, data: { codigoConvite: codigo } });
+  revalidatePath("/clube");
+}
+
+export async function desativarCodigoConvite() {
+  await exigirAdmin();
+  const clube = await obterClube();
+  await prisma.clube.update({ where: { id: clube.id }, data: { codigoConvite: null } });
+  revalidatePath("/clube");
+}
