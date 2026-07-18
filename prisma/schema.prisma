@@ -78,6 +78,7 @@ model Clube {
   pixBanco     String?
   mensalidadeValor Decimal @default(50) @db.Decimal(10, 2)
   mensalidadeVencimentoDia Int @default(10)
+  codigoConvite String?
   regulamento  String?
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSessao } from "@/lib/auth";
-import { obterClube, salvarClube } from "@/server/clube-actions";
+import { obterClube, salvarClube, gerarCodigoConvite, desativarCodigoConvite } from "@/server/clube-actions";
 import { Pagina, PageHeader } from "@/components/ui";
+import { CopiarPix } from "@/components/CopiarPix";
 
 export default async function ClubePage() {
   const sessao = (await getSessao())!;
@@ -11,6 +12,35 @@ export default async function ClubePage() {
   return (
     <Pagina>
       <PageHeader titulo="Clube" subtitulo="Dados institucionais, PIX e mensalidade" />
+
+      <div className="card p-6 max-w-2xl mb-6">
+        <div className="font-bold mb-1">🎟️ Código de convite</div>
+        <p className="text-xs text-muted mb-4">
+          Compartilhe este código com os atletas: com ele, cada um cria a própria conta
+          na tela inicial do app (aba &quot;Cadastrar&quot;) e já entra no clube.
+        </p>
+        {clube.codigoConvite ? (
+          <div className="space-y-3">
+            <CopiarPix valor={clube.codigoConvite} rotulo="Copiar código" />
+            <div className="flex gap-2">
+              <form action={gerarCodigoConvite}>
+                <button className="btn btn-outline text-xs">Gerar novo código</button>
+              </form>
+              <form action={desativarCodigoConvite}>
+                <button className="btn btn-danger text-xs">Desativar convites</button>
+              </form>
+            </div>
+            <p className="text-[11px] text-muted">
+              Gerar um novo código invalida o anterior. Desativar impede novos cadastros até gerar outro.
+            </p>
+          </div>
+        ) : (
+          <form action={gerarCodigoConvite}>
+            <button className="btn btn-primary">Gerar código de convite</button>
+          </form>
+        )}
+      </div>
+
       <form action={salvarClube} className="space-y-6 max-w-2xl">
         <div className="card p-6 grid sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2 font-bold">🛡️ Identidade</div>
