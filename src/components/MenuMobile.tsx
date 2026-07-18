@@ -3,24 +3,29 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import type { NavItem } from "./Nav";
+import { EscudoClube, type NavItem } from "./Nav";
 
 export function MenuMobile({
   itens,
   nome,
   onLogout,
+  clubeNome,
+  escudoUrl,
 }: {
   itens: NavItem[];
   nome: string;
   onLogout: () => void;
+  clubeNome?: string;
+  escudoUrl?: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
 
   return (
     <div className="lg:hidden">
       <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-surface/90 backdrop-blur border-b border-borda">
-        <div className="flex items-center gap-2 font-bold">
-          <span className="text-xl">⚽</span> Amigos da Bola <span className="text-primary">FC</span>
+        <div className="flex items-center gap-2 font-bold min-w-0">
+          <EscudoClube escudoUrl={escudoUrl} tamanho="h-8 w-8" />
+          <span className="truncate">{clubeNome ?? "Meu Clube"}</span>
         </div>
         <button
           aria-label="Menu"

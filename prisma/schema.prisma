@@ -69,6 +69,7 @@ model Clube {
   escudoUrl    String?
   corPrimaria  String   @default("#16a34a")
   corSecundaria String  @default("#0f172a")
+  usarCoresClube Boolean @default(false)
   cidade       String?
   estado       String?
   // Conta PIX do clube
