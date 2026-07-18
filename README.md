@@ -74,7 +74,9 @@ npm run dev
 1. Crie um banco Postgres no [Neon](https://neon.tech) e copie a connection string.
 2. Na [Vercel](https://vercel.com), importe este repositório do GitHub.
 3. Configure as variáveis de ambiente do projeto:
-   - `DATABASE_URL` — a connection string do Neon (com `?sslmode=require`)
+   - `DATABASE_URL` — a connection string **pooled** do Neon (host com `-pooler`, `?sslmode=require`)
+   - `DIRECT_URL` — a connection string **direta** do Neon (mesmo valor, sem `-pooler` no host);
+     usada apenas pelo `prisma migrate deploy` no build
    - `AUTH_SECRET` — um segredo forte (ex: `openssl rand -base64 32`)
 4. Deploy. O script de build já roda `prisma migrate deploy` (aplica as migrations
    no banco) e `prisma generate` automaticamente antes do `next build`.
