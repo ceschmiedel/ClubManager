@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessao } from "@/lib/auth";
 import { POSICOES } from "@/lib/format";
 import { Pagina, PageHeader, Vazio } from "@/components/ui";
+import { ImportarAtletas } from "@/components/ImportarAtletas";
 
 export default async function AtletasPage() {
   const sessao = (await getSessao())!;
@@ -21,6 +22,7 @@ export default async function AtletasPage() {
         subtitulo={`${atletas.filter((a) => a.usuario.ativo).length} ativos`}
         acao={<Link href="/atletas/novo" className="btn btn-primary">+ Novo atleta</Link>}
       />
+      <ImportarAtletas />
       {atletas.length === 0 && <Vazio mensagem="Nenhum atleta cadastrado." />}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {atletas.map((a) => (
