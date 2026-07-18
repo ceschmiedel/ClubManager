@@ -58,7 +58,7 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
     a.apelido ?? a.usuario.nome;
 
   const gp = jogo.golsPro ?? 0, gc = jogo.golsContra ?? 0;
-  const corPlacar = gp > gc ? "text-primary" : gp === gc ? "text-accent" : "text-danger";
+  const corPlacar = gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger";
 
   return (
     <Pagina>
@@ -121,7 +121,7 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-bold">
               Presenças{" "}
-              <span className={`text-sm font-semibold ${confirmados.length >= jogo.maxJogadores ? "text-accent" : "text-primary"}`}>
+              <span className={`text-sm font-semibold ${confirmados.length >= jogo.maxJogadores ? "text-accent" : "text-success"}`}>
                 {confirmados.length}/{jogo.maxJogadores}
               </span>
             </h2>

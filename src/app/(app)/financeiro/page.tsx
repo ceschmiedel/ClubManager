@@ -38,8 +38,8 @@ export default async function FinanceiroPage({
       <PageHeader titulo="Financeiro" subtitulo="Mensalidades, receitas e despesas do clube" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <StatCard rotulo="Caixa (últ. lançamentos)" valor={fmtMoeda(receitas - despesas)} cor={receitas - despesas >= 0 ? "text-primary" : "text-danger"} />
-        <StatCard rotulo="Receitas" valor={fmtMoeda(receitas)} cor="text-primary" />
+        <StatCard rotulo="Caixa (últ. lançamentos)" valor={fmtMoeda(receitas - despesas)} cor={receitas - despesas >= 0 ? "text-success" : "text-danger"} />
+        <StatCard rotulo="Receitas" valor={fmtMoeda(receitas)} cor="text-success" />
         <StatCard rotulo="Despesas" valor={fmtMoeda(despesas)} cor="text-danger" />
         <StatCard rotulo={`Mensalidades ${fmtCompetencia(competencia)}`} valor={`${pagos}/${pagamentos.length}`} detalhe={`${aguardando} aguardando · ${pendentes} pendentes`} />
       </div>
@@ -70,7 +70,7 @@ export default async function FinanceiroPage({
                     <td className="font-medium">{p.atleta.usuario.nome}</td>
                     <td>{fmtMoeda(Number(p.valor))}</td>
                     <td>
-                      {p.status === "PAGO" && <span className="badge bg-primary/15 text-primary">Pago</span>}
+                      {p.status === "PAGO" && <span className="badge bg-success/15 text-success">Pago</span>}
                       {p.status === "PENDENTE" && <span className="badge bg-danger/15 text-danger">Pendente</span>}
                       {p.status === "AGUARDANDO_CONFIRMACAO" && (
                         <span className="badge bg-accent/15 text-accent" title={p.comprovanteInfo ?? ""}>
@@ -119,7 +119,7 @@ export default async function FinanceiroPage({
                       <td>{fmtData(l.data)}</td>
                       <td>{l.descricao}</td>
                       <td className="text-muted">{l.categoria}</td>
-                      <td className={l.tipo === "RECEITA" ? "text-primary font-semibold" : "text-danger font-semibold"}>
+                      <td className={l.tipo === "RECEITA" ? "text-success font-semibold" : "text-danger font-semibold"}>
                         {l.tipo === "RECEITA" ? "+" : "−"} {fmtMoeda(Number(l.valor))}
                       </td>
                       <td>

@@ -27,7 +27,7 @@ export default async function FuncionariosPage() {
                 <td className="font-medium">{f.nome}</td>
                 <td>{f.email}</td>
                 <td>{f.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}</td>
-                <td>{f.ativo ? <span className="badge bg-primary/15 text-primary">Ativo</span> : <span className="badge bg-danger/15 text-danger">Inativo</span>}</td>
+                <td>{f.ativo ? <span className="badge bg-success/15 text-success">Ativo</span> : <span className="badge bg-danger/15 text-danger">Inativo</span>}</td>
                 <td>
                   {f.id !== sessao.sub && (
                     <form action={alternarAtivoUsuario}>

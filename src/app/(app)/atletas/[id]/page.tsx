@@ -107,7 +107,7 @@ export default async function AtletaPage({ params }: { params: Promise<{ id: str
                     <td>{fmtCompetencia(p.competencia)}</td>
                     <td>{fmtMoeda(Number(p.valor))}</td>
                     <td>
-                      {p.status === "PAGO" && <span className="badge bg-primary/15 text-primary">Pago</span>}
+                      {p.status === "PAGO" && <span className="badge bg-success/15 text-success">Pago</span>}
                       {p.status === "PENDENTE" && <span className="badge bg-danger/15 text-danger">Pendente</span>}
                       {p.status === "AGUARDANDO_CONFIRMACAO" && <span className="badge bg-accent/15 text-accent">Aguardando</span>}
                       {p.status === "ISENTO" && <span className="badge bg-surface-2 text-muted">Isento</span>}
