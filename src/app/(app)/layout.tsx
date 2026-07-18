@@ -40,7 +40,15 @@ export default async function AppLayout({
   const sessao = await getSessao();
   if (!sessao) redirect("/login");
   const admin = sessao.role === "ADMIN" || sessao.role === "SUPER_ADMIN";
-  const itens = admin ? itensAdmin : itensAtleta;
+  let itens = admin ? itensAdmin : itensAtleta;
+  if (admin && sessao.atletaId) {
+    // Funcionário que também é atleta paga mensalidade como os demais
+    itens = [
+      ...itens.slice(0, 4),
+      { href: "/mensalidade", rotulo: "Mensalidade", icone: "💸" },
+      ...itens.slice(4),
+    ];
+  }
   const clube = await obterClube();
   const clubeNome = clube.apelido ?? clube.nome;
 
