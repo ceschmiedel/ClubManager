@@ -31,10 +31,16 @@ export function FormFuncionario() {
         </select>
       </div>
       <div className="flex items-end">
-        {state?.erro && <p className="text-danger text-sm font-medium mr-3">{state.erro}</p>}
+        <label className="flex items-center gap-2 text-sm font-medium pb-2.5 cursor-pointer">
+          <input type="checkbox" name="tambemAtleta" className="h-4 w-4 accent-[var(--primary)]" />
+          ⚽ Também é atleta do clube
+        </label>
+      </div>
+      <div className="sm:col-span-2 flex items-center gap-3">
         <button className="btn btn-primary" disabled={pending}>
           {pending ? "Criando..." : "Criar funcionário"}
         </button>
+        {state?.erro && <p className="text-danger text-sm font-medium">{state.erro}</p>}
       </div>
     </form>
   );
