@@ -35,7 +35,7 @@ export default async function HistoricoPage() {
       <PageHeader titulo="Histórico" subtitulo="Retrospecto do clube" />
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
         <StatCard rotulo="Jogos" valor={retro.jogos} />
-        <StatCard rotulo="Vitórias" valor={retro.vitorias} cor="text-primary" />
+        <StatCard rotulo="Vitórias" valor={retro.vitorias} cor="text-success" />
         <StatCard rotulo="Empates" valor={retro.empates} cor="text-accent" />
         <StatCard rotulo="Derrotas" valor={retro.derrotas} cor="text-danger" />
         <StatCard rotulo="Aproveitamento" valor={`${aproveitamento}%`} />
@@ -54,7 +54,7 @@ export default async function HistoricoPage() {
                   <tr key={r.nome}>
                     <td className="font-medium">{r.nome}</td>
                     <td>{r.j}</td>
-                    <td className="text-primary font-semibold">{r.v}</td>
+                    <td className="text-success font-semibold">{r.v}</td>
                     <td className="text-accent">{r.e}</td>
                     <td className="text-danger">{r.d}</td>
                     <td>{r.gp}×{r.gc}</td>
@@ -80,7 +80,7 @@ export default async function HistoricoPage() {
                     {fmtData(j.dataHora)} · {j.competicao?.nome ?? "Amistoso"} · {j.modalidade === "CAMPO" ? "Campo" : "Futsal"}
                   </span>
                 </div>
-                <div className={`font-bold shrink-0 ${gp > gc ? "text-primary" : gp === gc ? "text-accent" : "text-danger"}`}>
+                <div className={`font-bold shrink-0 ${gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger"}`}>
                   {gp} × {gc}
                 </div>
               </Link>

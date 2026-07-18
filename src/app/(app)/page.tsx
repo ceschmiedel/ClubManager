@@ -49,10 +49,10 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <StatCard rotulo="Jogos" valor={retro.jogos} detalhe={`${retro.vitorias}V · ${retro.empates}E · ${retro.derrotas}D`} />
-        <StatCard rotulo="Saldo de gols" valor={retro.golsPro - retro.golsContra} detalhe={`${retro.golsPro} pró · ${retro.golsContra} contra`} cor={retro.golsPro - retro.golsContra >= 0 ? "text-primary" : "text-danger"} />
+        <StatCard rotulo="Saldo de gols" valor={retro.golsPro - retro.golsContra} detalhe={`${retro.golsPro} pró · ${retro.golsContra} contra`} cor={retro.golsPro - retro.golsContra >= 0 ? "text-success" : "text-danger"} />
         <StatCard rotulo="Artilheiro" valor={artilheiro ? `${artilheiro.gols} ⚽` : "—"} detalhe={artilheiro ? (artilheiro.apelido ?? artilheiro.nome) : "sem gols ainda"} />
         {admin ? (
-          <StatCard rotulo="Mensalidades em aberto" valor={pendentes ?? 0} detalhe={fmtMoeda(Number(clube.mensalidadeValor)) + "/mês"} cor={pendentes ? "text-accent" : "text-primary"} />
+          <StatCard rotulo="Mensalidades em aberto" valor={pendentes ?? 0} detalhe={fmtMoeda(Number(clube.mensalidadeValor)) + "/mês"} cor={pendentes ? "text-accent" : "text-success"} />
         ) : (
           <StatCard rotulo="Mensalidade" valor={fmtMoeda(Number(clube.mensalidadeValor))} detalhe={`vence dia ${clube.mensalidadeVencimentoDia}`} />
         )}
@@ -78,7 +78,7 @@ export default async function Dashboard() {
                       </div>
                       <div className="text-xs text-muted mt-1">
                         {j.modalidade === "CAMPO" ? "⚽ Campo" : "🥅 Futsal"} · Kit: {j.kit.nome} ·{" "}
-                        <span className={confirmados >= j.maxJogadores ? "text-accent" : "text-primary"}>
+                        <span className={confirmados >= j.maxJogadores ? "text-accent" : "text-success"}>
                           {confirmados}/{j.maxJogadores} confirmados
                         </span>
                       </div>
@@ -114,7 +114,7 @@ export default async function Dashboard() {
           <div className="space-y-3">
             {ultimos.map((j) => {
               const gp = j.golsPro ?? 0, gc = j.golsContra ?? 0;
-              const cor = gp > gc ? "text-primary" : gp === gc ? "text-accent" : "text-danger";
+              const cor = gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger";
               return (
                 <Link key={j.id} href={`/jogos/${j.id}`} className="card p-4 flex items-center justify-between hover:border-primary/40 transition-colors">
                   <div>

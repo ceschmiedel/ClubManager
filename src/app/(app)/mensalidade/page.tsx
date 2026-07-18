@@ -74,7 +74,7 @@ export default async function MensalidadePage() {
                   <div className="text-sm text-muted">{fmtMoeda(Number(p.valor))}{p.pagoEm && ` · pago em ${fmtData(p.pagoEm)}`}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  {p.status === "PAGO" && <span className="badge bg-primary/15 text-primary">Pago ✓</span>}
+                  {p.status === "PAGO" && <span className="badge bg-success/15 text-success">Pago ✓</span>}
                   {p.status === "ISENTO" && <span className="badge bg-surface-2 text-muted">Isento</span>}
                   {p.status === "AGUARDANDO_CONFIRMACAO" && <span className="badge bg-accent/15 text-accent">Aguardando confirmação</span>}
                   {p.status === "PENDENTE" && (

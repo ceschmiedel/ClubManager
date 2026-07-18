@@ -36,7 +36,7 @@ export default async function CompeticoesPage() {
                   {c.descricao && <p className="text-sm text-muted mt-0.5">{c.descricao}</p>}
                   <div className="flex gap-4 mt-3 text-sm">
                     <span>{c.jogos.length} jogos</span>
-                    <span className="text-primary font-semibold">{v}V</span>
+                    <span className="text-success font-semibold">{v}V</span>
                     <span className="text-accent">{e}E</span>
                     <span className="text-danger">{d}D</span>
                     <span className="text-muted">{gp}×{gc} gols</span>
