@@ -6,16 +6,38 @@ import { motion } from "framer-motion";
 
 export type NavItem = { href: string; rotulo: string; icone: string };
 
+export function EscudoClube({
+  escudoUrl,
+  tamanho = "h-10 w-10",
+}: {
+  escudoUrl?: string | null;
+  tamanho?: string;
+}) {
+  if (escudoUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={escudoUrl} alt="Escudo do clube" className={`${tamanho} rounded-full object-cover border border-borda bg-white`} />;
+  }
+  return (
+    <div className={`${tamanho} rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-xl`}>
+      ⚽
+    </div>
+  );
+}
+
 export function Sidebar({
   itens,
   nome,
   role,
   onLogout,
+  clubeNome,
+  escudoUrl,
 }: {
   itens: NavItem[];
   nome: string;
   role: string;
   onLogout: () => void;
+  clubeNome?: string;
+  escudoUrl?: string | null;
 }) {
   const pathname = usePathname();
   const ativo = (href: string) =>
@@ -24,10 +46,9 @@ export function Sidebar({
   return (
     <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-borda bg-surface/60 backdrop-blur sticky top-0 h-dvh">
       <div className="p-5 flex items-center gap-3 border-b border-borda">
-        <div className="h-10 w-10 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-xl">⚽</div>
-        <div>
-          <div className="font-bold leading-tight">Amigos da Bola</div>
-          <div className="text-primary text-xs font-bold">FC</div>
+        <EscudoClube escudoUrl={escudoUrl} />
+        <div className="min-w-0">
+          <div className="font-bold leading-tight truncate">{clubeNome ?? "Meu Clube"}</div>
         </div>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">

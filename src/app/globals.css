@@ -13,6 +13,7 @@
   --success: #16a34a;
   --accent: #d97706;
   --danger: #e5484d;
+  --primary-contrast: #ffffff;
   --sombra: 0 2px 8px rgba(31, 35, 64, 0.05), 0 12px 32px rgba(31, 35, 64, 0.06);
 }
 
@@ -42,7 +43,7 @@ body {
 
 ::selection {
   background: var(--primary);
-  color: #fff;
+  color: var(--primary-contrast);
 }
 
 .card {
@@ -89,7 +90,7 @@ select.input option {
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-2), var(--primary));
-  color: #fff;
+  color: var(--primary-contrast);
   box-shadow: 0 6px 16px rgba(96, 73, 232, 0.28);
 }
 .btn-primary:hover { filter: brightness(1.08); box-shadow: 0 8px 20px rgba(96, 73, 232, 0.34); }

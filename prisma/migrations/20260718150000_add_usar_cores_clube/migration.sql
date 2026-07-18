@@ -1,0 +1,1 @@
+ALTER TABLE "Clube" ADD COLUMN "usarCoresClube" BOOLEAN NOT NULL DEFAULT false;
