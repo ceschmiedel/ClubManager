@@ -43,6 +43,8 @@ export const POSICOES: Record<string, string> = {
   GOLEIRO: "Goleiro",
   ZAGUEIRO: "Zagueiro",
   LATERAL: "Lateral",
+  LATERAL_DIREITO: "Lateral Direito",
+  LATERAL_ESQUERDO: "Lateral Esquerdo",
   VOLANTE: "Volante",
   MEIA: "Meia",
   ATACANTE: "Atacante",
@@ -50,6 +52,17 @@ export const POSICOES: Record<string, string> = {
   ALA: "Ala (futsal)",
   PIVO: "Pivô (futsal)",
 };
+
+// Ordem canônica das posições de campo (a primeira marcada vira a principal)
+export const POS_CAMPO_OPCOES = [
+  "GOLEIRO", "ZAGUEIRO", "LATERAL_DIREITO", "LATERAL_ESQUERDO",
+  "VOLANTE", "MEIA", "ATACANTE",
+] as const;
+
+export function rotuloPosicoes(posicoes: string[], fallback?: string) {
+  const lista = posicoes.length ? posicoes : fallback ? [fallback] : [];
+  return lista.map((p) => POSICOES[p] ?? p).join(" · ") || "—";
+}
 
 export const CATEGORIAS_LANCAMENTO = [
   "mensalidade", "aluguel", "arbitragem", "material",

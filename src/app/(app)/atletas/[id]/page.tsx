@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSessao } from "@/lib/auth";
-import { fmtData, fmtMoeda, fmtCompetencia, POSICOES } from "@/lib/format";
+import { fmtData, fmtMoeda, fmtCompetencia, POSICOES, rotuloPosicoes } from "@/lib/format";
 import { calcularRankings } from "@/server/stats";
 import { obterClube } from "@/server/clube-actions";
 import { Pagina, PageHeader, LinkVoltar, StatCard } from "@/components/ui";
@@ -39,7 +39,7 @@ export default async function AtletaPage({ params }: { params: Promise<{ id: str
       <LinkVoltar href={admin ? "/atletas" : "/"} rotulo={admin ? "Atletas" : "Início"} />
       <PageHeader
         titulo={`${atleta.numeroCamisa ? `#${atleta.numeroCamisa} ` : ""}${atleta.apelido ?? atleta.usuario.nome}`}
-        subtitulo={`${atleta.usuario.nome} · ${POSICOES[atleta.posicao]}${atleta.posicaoFutsal ? ` / ${POSICOES[atleta.posicaoFutsal]} (futsal)` : ""}${!atleta.usuario.ativo ? " · INATIVO" : ""}`}
+        subtitulo={`${atleta.usuario.nome} · ${rotuloPosicoes(atleta.posicoes, atleta.posicao)}${atleta.posicaoFutsal ? ` / ${POSICOES[atleta.posicaoFutsal]} (futsal)` : ""}${!atleta.usuario.ativo ? " · INATIVO" : ""}`}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
@@ -134,6 +134,7 @@ export default async function AtletaPage({ params }: { params: Promise<{ id: str
                   telefone: atleta.usuario.telefone,
                   apelido: atleta.apelido,
                   posicao: atleta.posicao,
+                  posicoes: atleta.posicoes,
                   posicaoFutsal: atleta.posicaoFutsal,
                   numeroCamisa: atleta.numeroCamisa,
                   nascimento: atleta.nascimento ? atleta.nascimento.toISOString().slice(0, 10) : null,

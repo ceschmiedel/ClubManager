@@ -27,7 +27,7 @@ export async function GET() {
     ["• Apague as duas linhas de exemplo antes de importar."],
     ["• Campos com * são obrigatórios (Nome e Email)."],
     ["• Senha vazia = o atleta recebe a senha padrão informada no resultado da importação."],
-    ["• Posições aceitas: Goleiro, Zagueiro, Lateral, Volante, Meia, Atacante."],
+    ["• Posições aceitas: Goleiro, Zagueiro, Lateral Direito, Lateral Esquerdo, Volante, Meia, Atacante."],
     ["• Posição vazia = Meia."],
     ["• Nascimento no formato dd/mm/aaaa (ou como data do Excel)."],
     ["• E-mails repetidos (na planilha ou já cadastrados) são ignorados e listados no resultado."],

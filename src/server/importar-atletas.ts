@@ -11,6 +11,7 @@ const SENHA_PADRAO = "amigos123";
 
 const MAPA_POSICAO: Record<string, Posicao> = {
   goleiro: "GOLEIRO", zagueiro: "ZAGUEIRO", lateral: "LATERAL",
+  "lateral direito": "LATERAL_DIREITO", "lateral esquerdo": "LATERAL_ESQUERDO",
   volante: "VOLANTE", meia: "MEIA", atacante: "ATACANTE",
   fixo: "FIXO", ala: "ALA", pivo: "PIVO",
 };
@@ -120,6 +121,7 @@ export async function importarAtletas(
             create: {
               apelido: texto(l[3]) || null,
               posicao: posicao ?? "MEIA",
+              posicoes: [posicao ?? "MEIA"],
               numeroCamisa,
               nascimento: parseNascimento(l[7]),
               tipoSanguineo: texto(l[8]) || null,
