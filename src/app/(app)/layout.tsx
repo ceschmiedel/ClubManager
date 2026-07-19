@@ -40,8 +40,9 @@ export default async function AppLayout({
   const sessao = await getSessao();
   if (!sessao) redirect("/login");
   const admin = sessao.role === "ADMIN" || sessao.role === "SUPER_ADMIN";
+  const clube = await obterClube();
   let itens = admin ? itensAdmin : itensAtleta;
-  if (admin && sessao.atletaId) {
+  if (admin && sessao.atletaId && clube.mensalidadeAtiva) {
     // Funcionário que também é atleta paga mensalidade como os demais
     itens = [
       ...itens.slice(0, 4),
@@ -49,7 +50,9 @@ export default async function AppLayout({
       ...itens.slice(4),
     ];
   }
-  const clube = await obterClube();
+  if (!clube.mensalidadeAtiva) {
+    itens = itens.filter((i) => i.href !== "/mensalidade");
+  }
   const clubeNome = clube.apelido ?? clube.nome;
 
   return (

@@ -31,7 +31,7 @@ export default async function Dashboard() {
   ]);
 
   const artilheiro = rankings[0]?.gols ? rankings[0] : null;
-  const pendentes = admin
+  const pendentes = admin && clube.mensalidadeAtiva
     ? await prisma.pagamento.count({
         where: { competencia: competenciaAtual(), status: { in: ["PENDENTE", "AGUARDANDO_CONFIRMACAO"] } },
       })
@@ -47,15 +47,15 @@ export default async function Dashboard() {
         subtitulo={`${clube.nome} — temporada ${new Date().getFullYear()}`}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div className={`grid grid-cols-2 ${clube.mensalidadeAtiva ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-3 mb-8`}>
         <StatCard rotulo="Jogos" valor={retro.jogos} detalhe={`${retro.vitorias}V · ${retro.empates}E · ${retro.derrotas}D`} />
         <StatCard rotulo="Saldo de gols" valor={retro.golsPro - retro.golsContra} detalhe={`${retro.golsPro} pró · ${retro.golsContra} contra`} cor={retro.golsPro - retro.golsContra >= 0 ? "text-success" : "text-danger"} />
         <StatCard rotulo="Artilheiro" valor={artilheiro ? `${artilheiro.gols} ⚽` : "—"} detalhe={artilheiro ? (artilheiro.apelido ?? artilheiro.nome) : "sem gols ainda"} />
-        {admin ? (
+        {clube.mensalidadeAtiva && (admin ? (
           <StatCard rotulo="Mensalidades em aberto" valor={pendentes ?? 0} detalhe={fmtMoeda(Number(clube.mensalidadeValor)) + "/mês"} cor={pendentes ? "text-accent" : "text-success"} />
         ) : (
           <StatCard rotulo="Mensalidade" valor={fmtMoeda(Number(clube.mensalidadeValor))} detalhe={`vence dia ${clube.mensalidadeVencimentoDia}`} />
-        )}
+        ))}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

@@ -149,7 +149,17 @@ export default async function ClubePage() {
         </div>
 
         <div className="card p-6 grid sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2 font-bold">💸 Mensalidade</div>
+          <div className="sm:col-span-2 flex items-center justify-between">
+            <span className="font-bold">💸 Mensalidade</span>
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input type="checkbox" name="mensalidadeAtiva" defaultChecked={clube.mensalidadeAtiva} className="h-4 w-4 accent-[var(--primary)]" />
+              Habilitada
+            </label>
+          </div>
+          <p className="sm:col-span-2 text-xs text-muted -mt-2">
+            Desabilitada, a mensalidade some do menu, do dashboard, do financeiro e da página dos atletas.
+            As cobranças já geradas ficam guardadas e voltam quando reativar.
+          </p>
           <div>
             <label className="label">Valor (R$)</label>
             <input name="mensalidadeValor" type="number" step="0.01" min={0} defaultValue={Number(clube.mensalidadeValor)} className="input" />

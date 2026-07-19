@@ -35,6 +35,7 @@ export async function salvarClube(formData: FormData) {
       pixBanco: v("pixBanco"),
       mensalidadeValor: v("mensalidadeValor") ? Number(v("mensalidadeValor")) : clube.mensalidadeValor,
       mensalidadeVencimentoDia: v("mensalidadeVencimentoDia") ? Number(v("mensalidadeVencimentoDia")) : clube.mensalidadeVencimentoDia,
+      mensalidadeAtiva: formData.get("mensalidadeAtiva") === "on",
       regulamento: v("regulamento"),
     },
   });
