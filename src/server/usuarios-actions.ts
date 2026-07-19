@@ -12,6 +12,21 @@ function campo(formData: FormData, k: string) {
   return s === "" ? null : s;
 }
 
+// Ordem canônica: a primeira posição marcada vira a principal
+const ORDEM_POSICOES: Posicao[] = [
+  "GOLEIRO", "ZAGUEIRO", "LATERAL_DIREITO", "LATERAL_ESQUERDO",
+  "VOLANTE", "MEIA", "ATACANTE",
+];
+
+function lerPosicoes(formData: FormData): { posicoes: Posicao[]; principal: Posicao } {
+  const marcadas = formData
+    .getAll("posicoes")
+    .map(String)
+    .filter((p): p is Posicao => (ORDEM_POSICOES as string[]).includes(p));
+  const ordenadas = ORDEM_POSICOES.filter((p) => marcadas.includes(p));
+  return { posicoes: ordenadas, principal: ordenadas[0] ?? "MEIA" };
+}
+
 export async function criarFuncionario(
   _prev: { erro?: string } | undefined,
   formData: FormData
@@ -109,7 +124,8 @@ export async function criarAtleta(
       atleta: {
         create: {
           apelido: campo(formData, "apelido"),
-          posicao: (campo(formData, "posicao") as Posicao) ?? "MEIA",
+          posicao: lerPosicoes(formData).principal,
+          posicoes: lerPosicoes(formData).posicoes,
           posicaoFutsal: (campo(formData, "posicaoFutsal") as Posicao) ?? null,
           numeroCamisa: campo(formData, "numeroCamisa") ? Number(campo(formData, "numeroCamisa")) : null,
           nascimento: campo(formData, "nascimento") ? new Date(campo(formData, "nascimento")!) : null,
@@ -142,11 +158,13 @@ export async function editarAtleta(
       telefone: campo(formData, "telefone"),
     },
   });
+  const { posicoes, principal } = lerPosicoes(formData);
   await prisma.atleta.update({
     where: { id: atletaId },
     data: {
       apelido: campo(formData, "apelido"),
-      posicao: (campo(formData, "posicao") as Posicao) ?? undefined,
+      posicao: principal,
+      posicoes,
       posicaoFutsal: (campo(formData, "posicaoFutsal") as Posicao) ?? null,
       numeroCamisa: campo(formData, "numeroCamisa") ? Number(campo(formData, "numeroCamisa")) : null,
       nascimento: campo(formData, "nascimento") ? new Date(campo(formData, "nascimento")!) : null,

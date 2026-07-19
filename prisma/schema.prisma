@@ -19,6 +19,8 @@ enum Posicao {
   GOLEIRO
   ZAGUEIRO
   LATERAL
+  LATERAL_DIREITO
+  LATERAL_ESQUERDO
   VOLANTE
   MEIA
   ATACANTE
@@ -112,6 +114,7 @@ model Atleta {
   apelido         String?
   nascimento      DateTime?
   posicao         Posicao   @default(MEIA)
+  posicoes        Posicao[] @default([])
   posicaoFutsal   Posicao?
   numeroCamisa    Int?
   peDominante     String?   // destro, canhoto, ambidestro

@@ -2,9 +2,8 @@
 
 import { useActionState } from "react";
 import { criarAtleta, editarAtleta } from "@/server/usuarios-actions";
-import { POSICOES } from "@/lib/format";
+import { POSICOES, POS_CAMPO_OPCOES } from "@/lib/format";
 
-const POS_CAMPO = ["GOLEIRO", "ZAGUEIRO", "LATERAL", "VOLANTE", "MEIA", "ATACANTE"];
 const POS_FUTSAL = ["GOLEIRO", "FIXO", "ALA", "PIVO"];
 
 export type AtletaForm = {
@@ -13,6 +12,7 @@ export type AtletaForm = {
   telefone: string | null;
   apelido: string | null;
   posicao: string;
+  posicoes: string[];
   posicaoFutsal: string | null;
   numeroCamisa: number | null;
   nascimento: string | null;
@@ -60,11 +60,27 @@ export function FormAtleta({ atleta }: { atleta?: AtletaForm }) {
           <label className="label">Nascimento</label>
           <input name="nascimento" type="date" className="input" defaultValue={atleta?.nascimento ?? ""} />
         </div>
-        <div>
-          <label className="label">Posição (campo)</label>
-          <select name="posicao" className="input" defaultValue={atleta?.posicao ?? "MEIA"}>
-            {POS_CAMPO.map((p) => <option key={p} value={p}>{POSICOES[p]}</option>)}
-          </select>
+        <div className="sm:col-span-2">
+          <label className="label">Posições (campo) — marque todas em que joga</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 border border-borda rounded-xl p-3">
+            {POS_CAMPO_OPCOES.map((p) => (
+              <label key={p} className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="posicoes"
+                  value={p}
+                  defaultChecked={
+                    atleta
+                      ? atleta.posicoes.includes(p) ||
+                        (atleta.posicoes.length === 0 && atleta.posicao === p)
+                      : p === "MEIA"
+                  }
+                  className="h-4 w-4 accent-[var(--primary)]"
+                />
+                {POSICOES[p]}
+              </label>
+            ))}
+          </div>
         </div>
         <div>
           <label className="label">Posição (futsal)</label>

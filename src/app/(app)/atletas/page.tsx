@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSessao } from "@/lib/auth";
-import { POSICOES } from "@/lib/format";
+import { rotuloPosicoes } from "@/lib/format";
 import { Pagina, PageHeader, Vazio } from "@/components/ui";
 import { ImportarAtletas } from "@/components/ImportarAtletas";
 
@@ -36,8 +36,8 @@ export default async function AtletasPage() {
                   {a.apelido ?? a.usuario.nome}
                   {a.lesoes.length > 0 && <span title="Lesionado"> 🤕</span>}
                 </div>
-                <div className="text-xs text-muted">
-                  {POSICOES[a.posicao]}{!a.usuario.ativo && " · inativo"}
+                <div className="text-xs text-muted truncate">
+                  {rotuloPosicoes(a.posicoes, a.posicao)}{!a.usuario.ativo && " · inativo"}
                 </div>
               </div>
             </div>
