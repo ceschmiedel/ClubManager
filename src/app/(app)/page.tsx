@@ -121,7 +121,11 @@ export default async function Dashboard() {
                     <div className="font-semibold">vs {j.adversario?.nome ?? "?"}</div>
                     <div className="text-xs text-muted">{fmtDataHora(j.dataHora)}</div>
                   </div>
-                  <div className={`text-xl font-bold ${cor}`}>{gp} × {gc}</div>
+                  {j.golsPro === null || j.golsContra === null ? (
+                    <span className="text-muted text-xs">s/ placar</span>
+                  ) : (
+                    <div className={`text-xl font-bold ${cor}`}>{gp} × {gc}</div>
+                  )}
                 </Link>
               );
             })}
