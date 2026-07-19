@@ -12,6 +12,7 @@ export async function gerarMensalidades(formData: FormData) {
   const competencia = String(formData.get("competencia"));
   if (!/^\d{4}-\d{2}$/.test(competencia)) return;
   const clube = await obterClube();
+  if (!clube.mensalidadeAtiva) return;
   const atletas = await prisma.atleta.findMany({
     where: { usuario: { ativo: true } },
   });

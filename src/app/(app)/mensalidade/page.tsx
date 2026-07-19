@@ -13,6 +13,7 @@ export default async function MensalidadePage() {
   const sessao = (await getSessao())!;
   if (!sessao.atletaId) redirect("/financeiro");
   const clube = await obterClube();
+  if (!clube.mensalidadeAtiva) redirect("/");
 
   const pagamentos = await prisma.pagamento.findMany({
     where: { atletaId: sessao.atletaId },

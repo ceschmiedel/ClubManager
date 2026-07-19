@@ -1,0 +1,1 @@
+ALTER TABLE "Clube" ADD COLUMN "mensalidadeAtiva" BOOLEAN NOT NULL DEFAULT true;

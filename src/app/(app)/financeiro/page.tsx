@@ -7,6 +7,7 @@ import {
   gerarMensalidades, confirmarPagamento, estornarPagamento,
   criarLancamento, excluirLancamento,
 } from "@/server/financeiro-actions";
+import { obterClube } from "@/server/clube-actions";
 
 export default async function FinanceiroPage({
   searchParams,
@@ -18,12 +19,15 @@ export default async function FinanceiroPage({
   const { comp } = await searchParams;
   const competencia = comp && /^\d{4}-\d{2}$/.test(comp) ? comp : competenciaAtual();
 
+  const clube = await obterClube();
   const [pagamentos, lancamentos] = await Promise.all([
-    prisma.pagamento.findMany({
-      where: { competencia },
-      include: { atleta: { include: { usuario: true } } },
-      orderBy: { atleta: { usuario: { nome: "asc" } } },
-    }),
+    clube.mensalidadeAtiva
+      ? prisma.pagamento.findMany({
+          where: { competencia },
+          include: { atleta: { include: { usuario: true } } },
+          orderBy: { atleta: { usuario: { nome: "asc" } } },
+        })
+      : Promise.resolve([]),
     prisma.lancamento.findMany({ orderBy: { data: "desc" }, take: 50 }),
   ]);
 
@@ -37,13 +41,16 @@ export default async function FinanceiroPage({
     <Pagina>
       <PageHeader titulo="Financeiro" subtitulo="Mensalidades, receitas e despesas do clube" />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div className={`grid grid-cols-2 ${clube.mensalidadeAtiva ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-3 mb-8`}>
         <StatCard rotulo="Caixa (últ. lançamentos)" valor={fmtMoeda(receitas - despesas)} cor={receitas - despesas >= 0 ? "text-success" : "text-danger"} />
         <StatCard rotulo="Receitas" valor={fmtMoeda(receitas)} cor="text-success" />
         <StatCard rotulo="Despesas" valor={fmtMoeda(despesas)} cor="text-danger" />
-        <StatCard rotulo={`Mensalidades ${fmtCompetencia(competencia)}`} valor={`${pagos}/${pagamentos.length}`} detalhe={`${aguardando} aguardando · ${pendentes} pendentes`} />
+        {clube.mensalidadeAtiva && (
+          <StatCard rotulo={`Mensalidades ${fmtCompetencia(competencia)}`} valor={`${pagos}/${pagamentos.length}`} detalhe={`${aguardando} aguardando · ${pendentes} pendentes`} />
+        )}
       </div>
 
+      {clube.mensalidadeAtiva && (
       <section className="mb-8">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="font-bold">💸 Mensalidades — {fmtCompetencia(competencia)}</h2>
@@ -103,6 +110,7 @@ export default async function FinanceiroPage({
           </div>
         )}
       </section>
+      )}
 
       <section className="grid lg:grid-cols-[1fr_320px] gap-6">
         <div>

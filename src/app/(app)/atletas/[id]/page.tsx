@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessao } from "@/lib/auth";
 import { fmtData, fmtMoeda, fmtCompetencia, POSICOES } from "@/lib/format";
 import { calcularRankings } from "@/server/stats";
+import { obterClube } from "@/server/clube-actions";
 import { Pagina, PageHeader, LinkVoltar, StatCard } from "@/components/ui";
 import { FormAtleta } from "@/components/FormAtleta";
 import { alternarAtivoUsuario, redefinirSenha } from "@/server/usuarios-actions";
@@ -31,6 +32,7 @@ export default async function AtletaPage({ params }: { params: Promise<{ id: str
   if (!atleta) notFound();
 
   const stats = (await calcularRankings()).find((r) => r.atletaId === id);
+  const clube = await obterClube();
 
   return (
     <Pagina>
@@ -95,7 +97,7 @@ export default async function AtletaPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
-      {atleta.pagamentos.length > 0 && (
+      {clube.mensalidadeAtiva && atleta.pagamentos.length > 0 && (
         <section className="mb-6">
           <h2 className="font-bold mb-3">💸 Últimas mensalidades</h2>
           <div className="card overflow-x-auto">
