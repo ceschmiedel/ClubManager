@@ -84,7 +84,11 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
       <div className="card p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           {jogo.status === "ENCERRADO" ? (
-            <div className={`text-4xl font-black ${corPlacar}`}>{gp} × {gc}</div>
+            jogo.golsPro === null || jogo.golsContra === null ? (
+              <span className="badge bg-surface-2 text-muted text-sm">Encerrado — placar não informado</span>
+            ) : (
+              <div className={`text-4xl font-black ${corPlacar}`}>{gp} × {gc}</div>
+            )
           ) : jogo.status === "CANCELADO" ? (
             <span className="badge bg-danger/15 text-danger text-sm">Jogo cancelado</span>
           ) : (

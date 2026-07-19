@@ -19,10 +19,13 @@ export default async function HistoricoPage() {
   for (const j of jogos) {
     const chave = j.adversario?.id ?? "sem";
     const r = porAdversario.get(chave) ?? { nome: j.adversario?.nome ?? "Sem adversário", j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0 };
-    r.j++; r.gp += j.golsPro ?? 0; r.gc += j.golsContra ?? 0;
-    if ((j.golsPro ?? 0) > (j.golsContra ?? 0)) r.v++;
-    else if ((j.golsPro ?? 0) === (j.golsContra ?? 0)) r.e++;
-    else r.d++;
+    r.j++;
+    if (j.golsPro !== null && j.golsContra !== null) {
+      r.gp += j.golsPro; r.gc += j.golsContra;
+      if (j.golsPro > j.golsContra) r.v++;
+      else if (j.golsPro === j.golsContra) r.e++;
+      else r.d++;
+    }
     porAdversario.set(chave, r);
   }
 
@@ -80,9 +83,13 @@ export default async function HistoricoPage() {
                     {fmtData(j.dataHora)} · {j.competicao?.nome ?? "Amistoso"} · {j.modalidade === "CAMPO" ? "Campo" : "Futsal"}
                   </span>
                 </div>
-                <div className={`font-bold shrink-0 ${gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger"}`}>
-                  {gp} × {gc}
-                </div>
+                {j.golsPro === null || j.golsContra === null ? (
+                  <span className="text-muted text-xs shrink-0">s/ placar</span>
+                ) : (
+                  <div className={`font-bold shrink-0 ${gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger"}`}>
+                    {gp} × {gc}
+                  </div>
+                )}
               </Link>
             );
           })}

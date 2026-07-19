@@ -39,9 +39,13 @@ export default async function JogosPage() {
           </div>
         </div>
         {j.status === "ENCERRADO" && (
-          <div className={`text-xl font-bold shrink-0 ${gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger"}`}>
-            {gp} × {gc}
-          </div>
+          j.golsPro === null || j.golsContra === null ? (
+            <span className="text-muted text-xs shrink-0">s/ placar</span>
+          ) : (
+            <div className={`text-xl font-bold shrink-0 ${gp > gc ? "text-success" : gp === gc ? "text-accent" : "text-danger"}`}>
+              {gp} × {gc}
+            </div>
+          )
         )}
       </Link>
     );

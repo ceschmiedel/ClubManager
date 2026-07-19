@@ -59,10 +59,12 @@ export async function retrospecto() {
   });
   let v = 0, e = 0, d = 0, gp = 0, gc = 0;
   for (const j of jogos) {
-    gp += j.golsPro ?? 0;
-    gc += j.golsContra ?? 0;
-    if ((j.golsPro ?? 0) > (j.golsContra ?? 0)) v++;
-    else if ((j.golsPro ?? 0) === (j.golsContra ?? 0)) e++;
+    // Jogos sem placar informado ficam fora do V/E/D e dos gols
+    if (j.golsPro === null || j.golsContra === null) continue;
+    gp += j.golsPro;
+    gc += j.golsContra;
+    if (j.golsPro > j.golsContra) v++;
+    else if (j.golsPro === j.golsContra) e++;
     else d++;
   }
   return { jogos: jogos.length, vitorias: v, empates: e, derrotas: d, golsPro: gp, golsContra: gc };
