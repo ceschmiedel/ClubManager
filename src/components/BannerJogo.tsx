@@ -7,10 +7,11 @@ import {
 } from "@/server/banner-actions";
 
 const PRESETS = [
-  { id: "1", rotulo: "Gramado" },
+  { id: "1", rotulo: "Bola no gramado" },
   { id: "2", rotulo: "Estádio" },
-  { id: "3", rotulo: "Pôr do sol" },
+  { id: "3", rotulo: "Comemoração" },
   { id: "4", rotulo: "Urbano" },
+  { id: "5", rotulo: "Confronto" },
 ];
 const FORMATOS = [
   { id: "feed", rotulo: "Feed 4:5", w: 1080, h: 1350 },
