@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSessao } from "@/lib/auth";
-import { fmtDataHora } from "@/lib/format";
+import { fmtDataHora, fmtData } from "@/lib/format";
 import { craqueDoJogo } from "@/server/stats";
+import { obterClube } from "@/server/clube-actions";
 import { Pagina, PageHeader, LinkVoltar, Vazio } from "@/components/ui";
+import { BannerJogo } from "@/components/BannerJogo";
 import {
   responderConvocacao, cancelarJogo, reabrirJogo,
   registrarResultado, darNotas, votarCraque, comentarJogo,
@@ -31,6 +33,7 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
     },
   });
   if (!jogo) notFound();
+  const clube = await obterClube();
 
   const confirmados = jogo.confirmacoes.filter((c) => c.status === "CONFIRMADO");
   const fila = jogo.confirmacoes.filter((c) => c.status === "LISTA_ESPERA");
@@ -118,6 +121,28 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
           <span className="font-semibold">📋 Combinados: </span>{jogo.observacoes}
         </div>
       )}
+
+      {/* Banner do jogo para divulgação */}
+      <details className="card p-5 mb-6" open={jogo.status === "AGENDADO"}>
+        <summary className="cursor-pointer font-bold">🖼️ Banner do jogo</summary>
+        <p className="text-xs text-muted mt-1 mb-4">
+          Escolha um fundo, envie o escudo do adversário e baixe a arte pronta para divulgar no grupo.
+        </p>
+        <BannerJogo
+          jogoId={id}
+          clubeNome={clube.apelido ?? clube.nome}
+          clubeEscudo={clube.escudoUrl}
+          adversarioId={jogo.adversarioId}
+          adversarioNome={jogo.adversario?.nome ?? "A definir"}
+          adversarioEscudo={jogo.adversario?.escudoUrl ?? null}
+          data={fmtData(jogo.dataHora)}
+          hora={new Date(jogo.dataHora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          local={jogo.local?.nome ?? "A definir"}
+          competicao={jogo.competicao?.nome ?? "Amistoso"}
+          emCasa={jogo.emCasa}
+          fundoInicial={jogo.bannerFundo}
+        />
+      </details>
 
       {/* Confirmação de presença */}
       {jogo.status === "AGENDADO" && (

@@ -148,6 +148,7 @@ model Adversario {
   corCamisa String?
   cidade    String?
   contato   String?
+  escudoUrl String?
   jogos     Jogo[]
 }
 
@@ -208,6 +209,7 @@ model Jogo {
   maxJogadores  Int        @default(22)
   emCasa        Boolean    @default(true)
   observacoes   String?
+  bannerFundo   String?
   // Resultado
   golsPro       Int?
   golsContra    Int?
