@@ -34,6 +34,7 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
   });
   if (!jogo) notFound();
   const clube = await obterClube();
+  const fundosCustom = await prisma.fundoBanner.findMany({ orderBy: { criadoEm: "desc" } });
 
   const confirmados = jogo.confirmacoes.filter((c) => c.status === "CONFIRMADO");
   const fila = jogo.confirmacoes.filter((c) => c.status === "LISTA_ESPERA");
@@ -141,6 +142,7 @@ export default async function JogoPage({ params }: { params: Promise<{ id: strin
           competicao={jogo.competicao?.nome ?? "Amistoso"}
           emCasa={jogo.emCasa}
           fundoInicial={jogo.bannerFundo}
+          fundosCustom={fundosCustom.map((f) => ({ id: f.id, url: f.url, nome: f.nome }))}
         />
       </details>
 

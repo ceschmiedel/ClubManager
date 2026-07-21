@@ -394,6 +394,14 @@ model BadgeAtleta {
   @@unique([atletaId, codigo])
 }
 
+// Fundos de banner reutilizáveis (upload do clube)
+model FundoBanner {
+  id       String   @id @default(cuid())
+  url      String
+  nome     String?
+  criadoEm DateTime @default(now())
+}
+
 // Galeria
 model Foto {
   id        String   @id @default(cuid())
