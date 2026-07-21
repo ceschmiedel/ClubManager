@@ -48,6 +48,35 @@ function carregarImg(src: string): Promise<HTMLImageElement | null> {
   });
 }
 
+function quebrarLinhas(ctx: CanvasRenderingContext2D, texto: string, maxLarg: number, maxLinhas: number): string[] {
+  const palavras = texto.split(/\s+/);
+  const linhas: string[] = [];
+  let atual = "";
+  let i = 0;
+  while (i < palavras.length) {
+    const palavra = palavras[i];
+    const teste = atual ? `${atual} ${palavra}` : palavra;
+    if (ctx.measureText(teste).width > maxLarg && atual) {
+      linhas.push(atual);
+      atual = "";
+      if (linhas.length === maxLinhas) break;
+    } else {
+      atual = teste;
+      i++;
+    }
+  }
+  if (linhas.length < maxLinhas && atual) linhas.push(atual);
+
+  if (i < palavras.length) {
+    let ultima = linhas[maxLinhas - 1] ?? "";
+    while (ctx.measureText(`${ultima}…`).width > maxLarg && ultima.length > 4) {
+      ultima = ultima.slice(0, -1);
+    }
+    linhas[maxLinhas - 1] = `${ultima.trim()}…`;
+  }
+  return linhas;
+}
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -120,9 +149,21 @@ export function BannerJogo(props: Props) {
       ctx.fillStyle = "#fff";
       ctx.fillText(rotulo, W / 2, H * 0.06 + pillH / 2 + 1);
 
+      // Local do jogo (abaixo da pílula, com quebra de linha)
+      const localFont = Math.round(W * 0.028);
+      ctx.font = `700 ${localFont}px Arial, sans-serif`;
+      ctx.fillStyle = "#e6e9f5";
+      const localMaxLarg = W * 0.82;
+      const localLinhas = quebrarLinhas(ctx, props.local, localMaxLarg, 2);
+      const localY0 = H * 0.06 + pillH + localFont * 1.1;
+      localLinhas.forEach((linha, i) => {
+        ctx.fillText(linha, W / 2, localY0 + i * localFont * 1.25);
+      });
+      const localBlocoH = localLinhas.length * localFont * 1.25;
+
       // Escudos + X
       const d = Math.min(W * 0.26, H * 0.30);
-      const cy = H * 0.42;
+      const cy = localY0 + localBlocoH + H * 0.06 + d / 2;
       const cxE = W * 0.29, cxA = W * 0.71;
 
       const desenhaEscudo = (img: HTMLImageElement | null, cx: number) => {
@@ -169,7 +210,7 @@ export function BannerJogo(props: Props) {
       nome(props.clubeNome, cxE);
       nome(props.adversarioNome, cxA);
 
-      // Barra inferior: Data / Horário / Local
+      // Barra inferior: Data / Horário
       const barraH = H * 0.16;
       const barraY = H - barraH;
       ctx.fillStyle = "rgba(8,12,22,0.78)";
@@ -190,9 +231,8 @@ export function BannerJogo(props: Props) {
         if (s !== valor) s = s.trim() + "…";
         ctx.fillText(s, cx, barraY + barraH * 0.66);
       };
-      col("DATA", props.data, W / 6, W * 0.28);
-      col("HORÁRIO", props.hora, W / 2, W * 0.28);
-      col("LOCAL", props.local, (5 * W) / 6, W * 0.30);
+      col("DATA", props.data, W / 3, W * 0.28);
+      col("HORÁRIO", props.hora, (2 * W) / 3, W * 0.28);
     })();
     return () => { cancelado = true; };
   }, [fundoSrc, W, H, props]);
