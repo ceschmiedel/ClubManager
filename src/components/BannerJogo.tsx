@@ -1,10 +1,14 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { Montserrat } from "next/font/google";
 import {
   salvarBannerFundo, enviarEscudoAdversario, removerEscudoAdversario,
   enviarFundoBanner, excluirFundoBanner,
 } from "@/server/banner-actions";
+
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "600", "700", "800", "900"] });
+const FONT = montserrat.style.fontFamily;
 
 const PRESETS = [
   { id: "1", rotulo: "Bola no gramado" },
@@ -77,16 +81,6 @@ function quebrarLinhas(ctx: CanvasRenderingContext2D, texto: string, maxLarg: nu
   return linhas;
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
 export function BannerJogo(props: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fundo, setFundo] = useState(props.fundoInicial ?? "1");
@@ -110,6 +104,15 @@ export function BannerJogo(props: Props) {
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
+
+      // Garante que a fonte esteja carregada antes de desenhar no canvas
+      try {
+        await Promise.all([
+          document.fonts.load(`800 100px ${FONT}`),
+          document.fonts.load(`700 100px ${FONT}`),
+          document.fonts.load(`600 100px ${FONT}`),
+        ]);
+      } catch { /* fallback para a fonte do sistema */ }
 
       const [bg, escC, escA] = await Promise.all([
         carregarImg(fundoSrc),
@@ -137,34 +140,46 @@ export function BannerJogo(props: Props) {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      // Pílula: competição
-      const pillFont = Math.round(W * 0.03);
-      ctx.font = `700 ${pillFont}px Arial, sans-serif`;
-      const rotulo = props.competicao.toUpperCase();
-      const larg = ctx.measureText(rotulo).width + pillFont * 2.2;
-      const pillH = pillFont * 1.9;
-      ctx.fillStyle = "rgba(96,73,232,0.92)";
-      roundRect(ctx, (W - larg) / 2, H * 0.06, larg, pillH, pillH / 2);
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.fillText(rotulo, W / 2, H * 0.06 + pillH / 2 + 1);
+      const comSombra = (blur: number, off: number) => {
+        ctx.shadowColor = "rgba(0,0,0,0.55)";
+        ctx.shadowBlur = blur;
+        ctx.shadowOffsetY = off;
+      };
+      const semSombra = () => {
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+      };
 
-      // Local do jogo (abaixo da pílula, com quebra de linha)
-      const localFont = Math.round(W * 0.028);
-      ctx.font = `700 ${localFont}px Arial, sans-serif`;
-      ctx.fillStyle = "#e6e9f5";
-      const localMaxLarg = W * 0.82;
-      const localLinhas = quebrarLinhas(ctx, props.local, localMaxLarg, 2);
-      const localY0 = H * 0.06 + pillH + localFont * 1.1;
+      // Título: nome da competição (grande, em destaque, no topo)
+      const tituloFont = Math.round(W * 0.072);
+      ctx.font = `800 ${tituloFont}px ${FONT}`;
+      ctx.fillStyle = "#ffffff";
+      comSombra(W * 0.018, W * 0.004);
+      const tituloLinhas = quebrarLinhas(ctx, props.competicao, W * 0.9, 2);
+      const tituloY0 = H * 0.085 + tituloFont / 2;
+      tituloLinhas.forEach((linha, i) => {
+        ctx.fillText(linha, W / 2, tituloY0 + i * tituloFont * 1.08);
+      });
+      const tituloBottom = tituloY0 + (tituloLinhas.length - 1) * tituloFont * 1.08 + tituloFont / 2;
+
+      // Local do jogo (em destaque, logo abaixo do título)
+      const localFont = Math.round(W * 0.037);
+      ctx.font = `600 ${localFont}px ${FONT}`;
+      ctx.fillStyle = "#e9edfb";
+      const localLinhas = quebrarLinhas(ctx, props.local, W * 0.84, 2);
+      const localY0 = tituloBottom + localFont * 1.2;
       localLinhas.forEach((linha, i) => {
         ctx.fillText(linha, W / 2, localY0 + i * localFont * 1.25);
       });
-      const localBlocoH = localLinhas.length * localFont * 1.25;
+      const localBottom = localY0 + (localLinhas.length - 1) * localFont * 1.25 + localFont / 2;
+      semSombra();
 
-      // Escudos + X
-      const d = Math.min(W * 0.26, H * 0.30);
-      const cy = localY0 + localBlocoH + H * 0.06 + d / 2;
-      const cxE = W * 0.29, cxA = W * 0.71;
+      // Escudos + X (centralizados horizontalmente)
+      const d = Math.min(W * 0.30, H * 0.26);
+      const cy = Math.max(H * 0.48, localBottom + d / 2 + H * 0.055);
+      const gap = W * 0.21;
+      const cxE = W / 2 - gap, cxA = W / 2 + gap;
 
       const desenhaEscudo = (img: HTMLImageElement | null, cx: number) => {
         ctx.save();
@@ -192,47 +207,37 @@ export function BannerJogo(props: Props) {
       desenhaEscudo(escC, cxE);
       desenhaEscudo(escA, cxA);
 
-      ctx.fillStyle = "#facc15";
-      ctx.font = `900 ${Math.round(W * 0.075)}px Arial, sans-serif`;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `800 ${Math.round(W * 0.07)}px ${FONT}`;
+      comSombra(W * 0.012, W * 0.003);
       ctx.fillText("X", W / 2, cy + 2);
+      semSombra();
 
-      // Nomes
-      ctx.fillStyle = "#fff";
-      const nomeFont = Math.round(W * 0.038);
-      ctx.font = `800 ${nomeFont}px Arial, sans-serif`;
-      const maxNome = W * 0.40;
-      const nome = (t: string, cx: number) => {
-        let s = t;
-        while (ctx.measureText(s.toUpperCase()).width > maxNome && s.length > 4) s = s.slice(0, -1);
-        if (s !== t) s = s.trim() + "…";
-        ctx.fillText(s.toUpperCase(), cx, cy + d / 2 + nomeFont * 1.3);
+      // Nomes dos times (abaixo dos escudos, em até 2 linhas)
+      const nomeFont = Math.round(W * 0.040);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 ${nomeFont}px ${FONT}`;
+      comSombra(W * 0.012, W * 0.003);
+      const nomeBaseY = cy + d / 2 + nomeFont * 1.25;
+      const desenhaNome = (t: string, cx: number) => {
+        const linhas = quebrarLinhas(ctx, t, W * 0.44, 2);
+        linhas.forEach((l, i) => ctx.fillText(l, cx, nomeBaseY + i * nomeFont * 1.1));
       };
-      nome(props.clubeNome, cxE);
-      nome(props.adversarioNome, cxA);
+      desenhaNome(props.clubeNome, cxE);
+      desenhaNome(props.adversarioNome, cxA);
+      semSombra();
 
-      // Barra inferior: Data / Horário
-      const barraH = H * 0.16;
-      const barraY = H - barraH;
-      ctx.fillStyle = "rgba(8,12,22,0.78)";
-      ctx.fillRect(0, barraY, W, barraH);
-      ctx.fillStyle = "rgba(96,73,232,1)";
-      ctx.fillRect(0, barraY, W, Math.max(4, H * 0.006));
-
-      const tituloFont = Math.round(W * 0.019);
-      const valorFont = Math.round(W * 0.028);
-      const col = (titulo: string, valor: string, cx: number, maxLarg: number) => {
-        ctx.fillStyle = "#a9b4cc";
-        ctx.font = `700 ${tituloFont}px Arial, sans-serif`;
-        ctx.fillText(titulo, cx, barraY + barraH * 0.34);
-        ctx.fillStyle = "#fff";
-        ctx.font = `800 ${valorFont}px Arial, sans-serif`;
-        let s = valor;
-        while (ctx.measureText(s).width > maxLarg && s.length > 4) s = s.slice(0, -1);
-        if (s !== valor) s = s.trim() + "…";
-        ctx.fillText(s, cx, barraY + barraH * 0.66);
-      };
-      col("DATA", props.data, W / 3, W * 0.28);
-      col("HORÁRIO", props.hora, (2 * W) / 3, W * 0.28);
+      // Data e horário (grande, próximo à base)
+      const dataFont = Math.round(W * 0.056);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `800 ${dataFont}px ${FONT}`;
+      comSombra(W * 0.02, W * 0.004);
+      const dataTxt = `${props.data} • ${props.hora}`;
+      const dataLinhas = quebrarLinhas(ctx, dataTxt, W * 0.9, 2);
+      const dataBottom = H * 0.93;
+      const dataTop = dataBottom - (dataLinhas.length - 1) * dataFont * 1.15 - dataFont / 2;
+      dataLinhas.forEach((l, i) => ctx.fillText(l, W / 2, dataTop + i * dataFont * 1.15));
+      semSombra();
     })();
     return () => { cancelado = true; };
   }, [fundoSrc, W, H, props]);
