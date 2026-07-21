@@ -41,3 +41,32 @@ export async function removerEscudoAdversario(formData: FormData) {
   await prisma.adversario.update({ where: { id: adversarioId }, data: { escudoUrl: null } });
   if (jogoId) revalidatePath(`/jogos/${jogoId}`);
 }
+
+// Upload de uma imagem de fundo reutilizável para os banners
+export async function enviarFundoBanner(
+  _prev: { erro?: string } | undefined,
+  formData: FormData
+): Promise<{ erro?: string }> {
+  await exigirAdmin();
+  const jogoId = String(formData.get("jogoId") ?? "");
+  const arquivo = formData.get("fundo") as File | null;
+  if (!arquivo || arquivo.size === 0) return { erro: "Selecione uma imagem" };
+  if (arquivo.size > 4 * 1024 * 1024) return { erro: "Imagem muito grande (máx. 4MB)" };
+  if (!arquivo.type.startsWith("image/")) return { erro: "O arquivo precisa ser uma imagem" };
+  const buf = Buffer.from(await arquivo.arrayBuffer());
+  await prisma.fundoBanner.create({
+    data: {
+      url: `data:${arquivo.type};base64,${buf.toString("base64")}`,
+      nome: (String(formData.get("nome") ?? "").trim() || arquivo.name).slice(0, 40),
+    },
+  });
+  if (jogoId) revalidatePath(`/jogos/${jogoId}`);
+  return {};
+}
+
+export async function excluirFundoBanner(formData: FormData) {
+  await exigirAdmin();
+  const jogoId = String(formData.get("jogoId") ?? "");
+  await prisma.fundoBanner.delete({ where: { id: String(formData.get("fundoId")) } });
+  if (jogoId) revalidatePath(`/jogos/${jogoId}`);
+}
