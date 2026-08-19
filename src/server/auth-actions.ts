@@ -11,10 +11,20 @@ export async function login(
 ) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const senha = String(formData.get("senha") ?? "");
-  const usuario = await prisma.usuario.findUnique({
-    where: { email },
-    include: { atleta: true },
-  });
+
+  let usuario;
+  try {
+    usuario = await prisma.usuario.findUnique({
+      where: { email },
+      include: { atleta: true },
+    });
+  } catch (e) {
+    // Banco indisponível / migrations não aplicadas: sem isso a action estoura
+    // e o usuário vê apenas um erro genérico, sem pista do que houve.
+    console.error("Falha ao consultar o usuário no login:", e);
+    return { erro: "Não foi possível conectar ao banco de dados. Tente novamente em instantes." };
+  }
+
   if (!usuario || !usuario.ativo || !(await bcrypt.compare(senha, usuario.senhaHash))) {
     return { erro: "E-mail ou senha inválidos" };
   }
