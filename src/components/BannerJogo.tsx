@@ -240,7 +240,11 @@ export function BannerJogo(props: Props) {
       semSombra();
     })();
     return () => { cancelado = true; };
-  }, [fundoSrc, W, H, props]);
+  }, [
+    fundoSrc, W, H,
+    props.clubeEscudo, props.adversarioEscudo, props.clubeNome, props.adversarioNome,
+    props.competicao, props.local, props.data, props.hora,
+  ]);
 
   function baixar() {
     const canvas = canvasRef.current;
@@ -251,23 +255,25 @@ export function BannerJogo(props: Props) {
       const a = document.createElement("a");
       a.href = url;
       a.download = `banner-${formato}-${props.adversarioNome.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
     }, "image/png");
   }
 
   return (
-    <div className="grid lg:grid-cols-[1fr_300px] gap-6">
-      <div className="flex justify-center">
+    <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_300px] gap-6">
+      <div className="flex justify-center min-w-0 w-full">
         <canvas
           ref={canvasRef}
           width={W}
           height={H}
-          className="rounded-2xl border border-borda shadow max-h-[70vh] w-auto"
+          className="block w-auto h-auto max-w-full max-h-[60vh] sm:max-h-[70vh] rounded-2xl border border-borda shadow"
           style={{ aspectRatio: `${W} / ${H}` }}
         />
       </div>
-      <div className="space-y-4">
+      <div className="space-y-4 min-w-0">
         <div>
           <div className="label">Formato</div>
           <div className="flex flex-wrap gap-1.5">
