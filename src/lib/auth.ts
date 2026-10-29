@@ -1,27 +1,19 @@
-import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { prisma } from "./prisma";
+import {
+  SESSION_COOKIE,
+  assinarSessao,
+  lerToken,
+  type SessionPayload,
+} from "./session";
 
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET ?? "dev-secret"
-);
-
-export type SessionPayload = {
-  sub: string; // usuarioId
-  nome: string;
-  role: "SUPER_ADMIN" | "ADMIN" | "ATLETA";
-  atletaId?: string;
-};
+export type { SessionPayload };
 
 export async function criarSessao(payload: SessionPayload) {
-  const token = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("30d")
-    .sign(secret);
+  const token = await assinarSessao(payload);
   const store = await cookies();
-  store.set("session", token, {
+  store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -32,24 +24,12 @@ export async function criarSessao(payload: SessionPayload) {
 
 export async function encerrarSessao() {
   const store = await cookies();
-  store.delete("session");
+  store.delete(SESSION_COOKIE);
 }
 
 export const getSessao = cache(async (): Promise<SessionPayload | null> => {
   const store = await cookies();
-  const token = store.get("session")?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify<SessionPayload>(token, secret);
-    return {
-      sub: payload.sub!,
-      nome: payload.nome,
-      role: payload.role,
-      atletaId: payload.atletaId,
-    };
-  } catch {
-    return null;
-  }
+  return lerToken(store.get(SESSION_COOKIE)?.value);
 });
 
 export async function exigirSessao(): Promise<SessionPayload> {

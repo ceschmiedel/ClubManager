@@ -69,6 +69,9 @@ npm run dev
 | Super Admin | `admin@amigosdabola.com` | `123456` |
 | Atleta | `fabinho@amigos.com` (e outros `@amigos.com`) | `123456` |
 
+> Esses logins só existem depois de rodar `npx tsx prisma/seed.ts` **naquele
+> banco**. Um banco recém-criado (ex.: o de produção) não tem nenhum usuário.
+
 ## Deploy (Vercel + Neon)
 
 1. Crie um banco Postgres no [Neon](https://neon.tech) e copie a connection string.
@@ -80,8 +83,42 @@ npm run dev
    - `AUTH_SECRET` — um segredo forte (ex: `openssl rand -base64 32`)
 4. Deploy. O script de build já roda `prisma migrate deploy` (aplica as migrations
    no banco) e `prisma generate` automaticamente antes do `next build`.
-5. (Opcional) Popule os dados de demonstração apontando para o banco de produção:
-   `DATABASE_URL="<url do neon>" npx tsx prisma/seed.ts`
+5. **Crie o primeiro usuário.** O build só aplica as migrations — ele **não** cria
+   nenhum usuário. Em um banco novo não existe conta alguma, então o login falha
+   com "E-mail ou senha inválidos" até você rodar um dos comandos abaixo:
+
+   ```bash
+   # Opção A — dados de demonstração completos (inclui admin@amigosdabola.com / 123456)
+   DATABASE_URL="<url do neon>" npx tsx prisma/seed.ts
+
+   # Opção B — apenas o clube + seu Super Admin, sem dados fictícios
+   DATABASE_URL="<url do neon>" ADMIN_EMAIL="voce@email.com" \
+     ADMIN_SENHA="suasenha" ADMIN_NOME="Seu Nome" npm run db:admin
+   ```
+
+## Não consigo entrar
+
+**"E-mail ou senha inválidos"** — a conta não existe nesse banco (o mais comum em
+um deploy novo, veja o passo 5 acima) ou a senha é outra. Para redefinir a senha
+de um e-mail que já existe, reativar a conta e garantir o papel de Super Admin:
+
+```bash
+DATABASE_URL="<url do banco>" ADMIN_EMAIL="admin@amigosdabola.com" \
+  ADMIN_SENHA="novasenha" ADMIN_RESET=1 npm run db:admin
+```
+
+Sem `ADMIN_RESET=1` o script nunca sobrescreve um usuário existente.
+
+**A página fica recarregando / `ERR_TOO_MANY_REDIRECTS`** — é um cookie de sessão
+antigo que deixou de ser válido (normalmente porque o `AUTH_SECRET` mudou ou não
+está definido no ambiente). O middleware agora valida o JWT e apaga o cookie
+inválido sozinho; se ainda acontecer, limpe os cookies do site no navegador.
+Defina `AUTH_SECRET` uma vez e **não troque o valor**, senão todas as sessões
+ativas caem.
+
+**"Não foi possível conectar ao banco de dados"** — `DATABASE_URL` errada,
+banco fora do ar ou migrations não aplicadas. Confira as variáveis de ambiente e
+rode `npx prisma migrate deploy`.
 
 ## Estrutura
 
